@@ -148,7 +148,7 @@ const MONTH_ORDER = [
 
 // 旧フォーマット（スプレッドシートCSV）のパース
 export function parseCSVContent(content: string, personId: number): Omit<SalaryRecord, 'id'>[] {
-  const lines = content.split('\n').map(parseLine)
+  const lines = content.split(/\r\n|\r|\n/).map(parseLine) 
   const result: Omit<SalaryRecord, 'id'>[] = []
   let currentYear: number | null = null
 
