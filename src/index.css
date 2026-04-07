@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', sans-serif;
+    background-color: #fffbf2;
+    color: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #f5f0e8; }
+  ::-webkit-scrollbar-thumb { background: #d4c8a8; border-radius: 3px; }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-3xl shadow-sm border border-amber-100;
+  }
+
+  .card-hover {
+    @apply hover:shadow-md hover:border-amber-200 transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-white rounded-2xl font-bold
+           transition-all duration-200 text-sm shadow-sm hover:shadow active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 border-2 border-amber-200 text-amber-600 hover:bg-amber-50
+           rounded-2xl text-sm font-medium transition-all duration-200;
+  }
+
+  .btn-danger {
+    @apply px-4 py-2 text-red-400 hover:text-red-600 hover:bg-red-50
+           rounded-2xl text-sm font-medium transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full bg-amber-50 border-2 border-amber-100 rounded-2xl px-4 py-2.5 text-sm
+           focus:outline-none focus:border-amber-400 focus:bg-white transition-all
+           placeholder-amber-300;
+  }
+
+  .badge {
+    @apply text-xs font-bold rounded-full px-2.5 py-0.5;
+  }
+
+  .badge-bonus {
+    @apply badge bg-orange-100 text-orange-600;
+  }
+
+  .nav-link {
+    @apply px-4 py-2 rounded-2xl text-sm font-bold transition-all duration-200;
+  }
+
+  .nav-link-active {
+    @apply nav-link bg-amber-400 text-white shadow-sm;
+  }
+
+  .nav-link-inactive {
+    @apply nav-link text-amber-600 hover:bg-amber-100;
+  }
+
+  .stat-card {
+    @apply card p-5 flex flex-col gap-1;
+  }
+
+  .stat-label {
+    @apply text-xs font-bold text-amber-400 uppercase tracking-wider;
+  }
+
+  .stat-value {
+    @apply text-2xl font-black;
+  }
+
+  .tag {
+    @apply text-xs font-bold rounded-full px-3 py-1 inline-flex items-center gap-1;
+  }
+}
