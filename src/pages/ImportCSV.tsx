@@ -31,10 +31,11 @@ export default function ImportCSV({ persons, onImported }: Props) {
     const reader = new FileReader()
     reader.onload = (ev) => {
       const buf = ev.target?.result as ArrayBuffer
-      let content = new TextDecoder('utf-8').decode(buf)
+      // Shift-JISで試し、月名が取れなければUTF-8で再試行
+      let content = new TextDecoder('shift-jis').decode(buf)
       let records = parseCSVContent(content, selectedPersonId)
       if (records.length === 0) {
-        content = new TextDecoder('shift-jis').decode(buf)
+        content = new TextDecoder('utf-8').decode(buf)
         records = parseCSVContent(content, selectedPersonId)
       }
       setPreview(records)
