@@ -19,17 +19,18 @@ export default function ImportCSV({ persons, onImported }: Props) {
   const [done, setDone] = useState(false)
   const [fileName, setFileName] = useState('')
   const [parseError, setParseError] = useState('')
+  const [debugLines, setDebugLines] = useState<string[]>([])
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setFileName(file.name)
     setParseError('')
+    setDebugLines([])
     setLoading(true)
     const reader = new FileReader()
     reader.onload = (ev) => {
       const buf = ev.target?.result as ArrayBuffer
-      // UTF-8で試し、月名が取れなければShift-JISで再試行
       let content = new TextDecoder('utf-8').decode(buf)
       let records = parseCSVContent(content, selectedPersonId)
       if (records.length === 0) {
@@ -37,7 +38,11 @@ export default function ImportCSV({ persons, onImported }: Props) {
         records = parseCSVContent(content, selectedPersonId)
       }
       setPreview(records)
-      if (records.length === 0) setParseError('データが見つかりませんでした。CSVの形式を確認してください。')
+      if (records.length === 0) {
+        setParseError('データが見つかりませんでした。')
+        // 最初の5行を表示してデバッグ
+        setDebugLines(content.split(/\r\n|\r|\n/).slice(0, 5))
+      }
       setLoading(false)
     }
     reader.readAsArrayBuffer(file)
@@ -97,7 +102,7 @@ export default function ImportCSV({ persons, onImported }: Props) {
               <span>↑</span> ファイルを選択
             </div>
             {fileName && <span className="text-sm text-gray-500">{fileName}</span>}
-            <input type="file" accept=".csv" onChange={handleFile} className="hidden" />
+            <input type="file" accept=".csv,text/csv,text/plain,*/*" onChange={handleFile} className="hidden" />
           </label>
           <p className="text-xs text-amber-400 mt-2">
             スプレッドシートからエクスポートしたCSV、またはこのアプリでエクスポートしたCSVに対応しています。
@@ -106,8 +111,14 @@ export default function ImportCSV({ persons, onImported }: Props) {
       </div>
 
       {parseError && (
-        <div className="card p-4 border-2 border-red-200 bg-red-50">
+        <div className="card p-4 border-2 border-red-200 bg-red-50 space-y-2">
           <p className="text-sm font-bold text-red-500">{parseError}</p>
+          {debugLines.length > 0 && (
+            <div className="text-xs text-gray-500 bg-white rounded-xl p-3 overflow-x-auto">
+              <p className="font-bold mb-1">ファイルの先頭（確認用）:</p>
+              {debugLines.map((l, i) => <p key={i} className="font-mono">{l || '(空行)'}</p>)}
+            </div>
+          )}
         </div>
       )}
 
