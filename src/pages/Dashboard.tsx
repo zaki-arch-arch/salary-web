@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Person, SalaryRecord } from '../types/salary'
-import { getYears, getRecords } from '../storage'
+import { getYears, getRecords, exportCSV } from '../storage'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend
@@ -106,6 +106,13 @@ export default function Dashboard({ persons, onSelectPerson }: Props) {
           <h2 className="text-2xl font-black text-amber-800">ホーム</h2>
           {latestYearLabel && <p className="text-sm text-amber-500 mt-0.5">{latestYearLabel} の概要</p>}
         </div>
+        {summaries.some(s => s.latestNet > 0) && (
+          <button onClick={exportCSV}
+            className="flex items-center gap-1.5 text-sm font-bold text-amber-600 hover:text-amber-800
+                       border-2 border-amber-200 hover:border-amber-400 rounded-2xl px-4 py-2 transition-all bg-white">
+            ↓ エクスポート
+          </button>
+        )}
       </div>
 
       {/* 世帯合計カード（複数人の場合） */}

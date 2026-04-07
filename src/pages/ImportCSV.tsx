@@ -18,20 +18,29 @@ export default function ImportCSV({ persons, onImported }: Props) {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [fileName, setFileName] = useState('')
+  const [parseError, setParseError] = useState('')
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setFileName(file.name)
+    setParseError('')
     setLoading(true)
     const reader = new FileReader()
     reader.onload = (ev) => {
-      const content = ev.target?.result as string
-      const records = parseCSVContent(content, selectedPersonId)
+      const buf = ev.target?.result as ArrayBuffer
+      // UTF-8で試し、月名が取れなければShift-JISで再試行
+      let content = new TextDecoder('utf-8').decode(buf)
+      let records = parseCSVContent(content, selectedPersonId)
+      if (records.length === 0) {
+        content = new TextDecoder('shift-jis').decode(buf)
+        records = parseCSVContent(content, selectedPersonId)
+      }
       setPreview(records)
+      if (records.length === 0) setParseError('データが見つかりませんでした。CSVの形式を確認してください。')
       setLoading(false)
     }
-    reader.readAsText(file, 'utf-8')
+    reader.readAsArrayBuffer(file)
   }
 
   const handleImport = () => {
@@ -95,6 +104,12 @@ export default function ImportCSV({ persons, onImported }: Props) {
           </p>
         </div>
       </div>
+
+      {parseError && (
+        <div className="card p-4 border-2 border-red-200 bg-red-50">
+          <p className="text-sm font-bold text-red-500">{parseError}</p>
+        </div>
+      )}
 
       {/* プレビュー */}
       {preview && (
