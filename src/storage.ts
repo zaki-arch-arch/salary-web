@@ -146,12 +146,39 @@ const MONTH_ORDER = [
   '７月', '８月', '９月', '１０月', '１１月', '冬期賞与', '１２月'
 ]
 
-// 旧フォーマット（スプレッドシートCSV）のパース
 export function parseCSVContent(content: string, personId: number): Omit<SalaryRecord, 'id'>[] {
-  const lines = content.split(/\r\n|\r|\n/).map(parseLine) 
+  const lines = content.split(/\r\n|\r|\n/).map(parseLine)
+
+  // このアプリのエクスポートCSV（ヘッダー行が「氏名」で始まる）
+  const firstDataRow = lines.find(cols => cols.some(c => c.trim() !== ''))
+  if (firstDataRow?.[0]?.trim() === '氏名' || firstDataRow?.[0]?.replace(/\uFEFF/g, '').trim() === '氏名') {
+    const result: Omit<SalaryRecord, 'id'>[] = []
+    for (const cols of lines) {
+      const year = parseInt(cols[1]?.trim(), 10)
+      const month = cols[2]?.trim()
+      if (!year || !month || !MONTH_ORDER.includes(month)) continue
+      result.push({
+        person_id: personId,
+        year, month,
+        type: cols[3]?.trim() === '賞与' ? 'bonus' : 'monthly',
+        gross_pay: parseAmount(cols[4]),
+        income_tax: parseAmount(cols[5]),
+        resident_tax: parseAmount(cols[6]),
+        health_insurance: parseAmount(cols[7]),
+        pension: parseAmount(cols[8]),
+        employment_insurance: parseAmount(cols[9]),
+        misc_deductions: parseAmount(cols[10]),
+        non_taxable: parseAmount(cols[11]),
+        net_pay: parseAmount(cols[12]),
+        transportation: parseAmount(cols[13]),
+      })
+    }
+    return result
+  }
+
+  // スプレッドシートの旧フォーマット
   const result: Omit<SalaryRecord, 'id'>[] = []
   let currentYear: number | null = null
-
   for (const cols of lines) {
     const yearMatch = cols[2]?.trim().match(/^(\d{4})年?$/)
     if (yearMatch) currentYear = parseInt(yearMatch[1], 10)
